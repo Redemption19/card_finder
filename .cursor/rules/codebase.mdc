@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Codebase Awareness Rule
+
+- When responding to prompts, always consider the entire codebase, not just the currently open file.
+- For refactoring, searching, or generating code, ensure all relevant files and folders are included in the analysis.
+- If a prompt references `@codebase`, treat it as an instruction to scan and reason about the whole project.
+- Respect `.gitignore` and project-specific ignore files unless otherwise specified.
+
