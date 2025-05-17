@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AuthService } from "@/lib/services/auth-service";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -29,6 +31,9 @@ type FormValues = z.infer<typeof formSchema>;
 export default function SignIn() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectedFrom') || '/';
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -43,13 +48,11 @@ export default function SignIn() {
     setError(null);
     
     try {
-      // This is where you would normally handle authentication
-      console.log(data);
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await AuthService.signIn(data);
+      router.push(redirectTo);
+      router.refresh(); // Refresh the page to update the session
     } catch (error) {
+      console.error("Sign in error:", error);
       setError("Failed to sign in. Please check your credentials and try again.");
     } finally {
       setIsSubmitting(false);

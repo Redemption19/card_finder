@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { AuthService } from "@/lib/services/auth-service";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -48,6 +50,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -66,13 +69,16 @@ export default function SignUp() {
     setError(null);
     
     try {
-      // This is where you would normally handle user registration
-      console.log(data);
+      await AuthService.signUp({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+        phone: data.phone,
+      });
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      router.push('/auth/signin');
     } catch (error) {
+      console.error("Sign up error:", error);
       setError("Failed to create account. Please try again.");
     } finally {
       setIsSubmitting(false);
